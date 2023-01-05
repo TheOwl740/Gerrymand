@@ -1,4 +1,7 @@
+//jshint maxerr: 10000
+
 var selectedColor = null;
+var dragging = false;
 
 const images = {
 	grid: new Image(),
@@ -200,32 +203,140 @@ function update() {
 	if(e.data.mouse.clicking) {
 		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[0])) {
 			selectedColor = "#ff0000";
+			for(i = 0; i < 5; i++) {
+        for(ii = 0; ii < 7; ii++) {
+          if(gridMatrix[i][ii].zone === "#ff0000") {
+            gridMatrix[i][ii].zone = null;
+          }
+        }
+			}
 		}
 		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[1])) {
 			selectedColor = "#ff9900";
+			for(i = 0; i < 5; i++) {
+        for(ii = 0; ii < 7; ii++) {
+          if(gridMatrix[i][ii].zone === "#ff9900") {
+            gridMatrix[i][ii].zone = null;
+          }
+        }
+			}
 		}
 		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[2])) {
-			selectedColor = "#ffff00";
+			selectedColor = "#bbbb00";
+			for(i = 0; i < 5; i++) {
+        for(ii = 0; ii < 7; ii++) {
+          if(gridMatrix[i][ii].zone === "#bbbb00") {
+            gridMatrix[i][ii].zone = null;
+          }
+        }
+			}
 		}
 		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[3])) {
 			selectedColor = "#00ff00";
+			for(i = 0; i < 5; i++) {
+        for(ii = 0; ii < 7; ii++) {
+          if(gridMatrix[i][ii].zone === "#00ff00") {
+            gridMatrix[i][ii].zone = null;
+          }
+        }
+			}
 		}
 		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[4])) {
 			selectedColor = "#1155cc";
+			for(i = 0; i < 5; i++) {
+        for(ii = 0; ii < 7; ii++) {
+          if(gridMatrix[i][ii].zone === "#1155cc") {
+            gridMatrix[i][ii].zone = null;
+          }
+        }
+			}
 		}
 		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[5])) {
 			selectedColor = "#9900ff";
+			for(i = 0; i < 5; i++) {
+        for(ii = 0; ii < 7; ii++) {
+          if(gridMatrix[i][ii].zone === "#9900ff") {
+            gridMatrix[i][ii].zone = null;
+          }
+        }
+			}
 		}
 		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[6])) {
 			selectedColor = "#ff00ff";
+			for(i = 0; i < 5; i++) {
+        for(ii = 0; ii < 7; ii++) {
+          if(gridMatrix[i][ii].zone === "#ff00ff") {
+            gridMatrix[i][ii].zone = null;
+          }
+        }
+			}
 		}
 		for(i = 0; i < 5; i++) {
 			for(ii = 0; ii < 7; ii++) {
 				let cell = gridMatrix[i][ii];
-				if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), cell.collider)) {
+				if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), cell.collider) && selectedColor !== null) {
+          dragging = true;
+          if(cell.zone !== null && cell.zone !== selectedColor) {
+            for(a = 0; a < 5; a++) {
+              for(aa = 0; aa < 7; aa++) {
+                if(gridMatrix[a][aa].zone === cell.zone && !((a === i) && (aa === ii))) {
+                  gridMatrix[a][aa].zone = null;
+                }
+              }
+            }
+          }
 					cell.zone = selectedColor;
 				}
 			}
 		}
+	} else {
+    if(dragging) {
+      dragging = false;
+      let total = 0;
+      for(i = 0; i < 5; i++) {
+        for(ii = 0; ii < 7; ii++) {
+          if(gridMatrix[i][ii].zone === selectedColor) {
+            total++;
+          }
+        }
+      }
+      if(total !== 5) {
+        for(i = 0; i < 5; i++) {
+          for(ii = 0; ii < 7; ii++) {
+            if(gridMatrix[i][ii].zone === selectedColor) {
+              gridMatrix[i][ii].zone = null;
+            }
+          }
+        }
+      }
+      selectedColor = null;
+    }
 	}
+  if(selectedColor !== null) {
+    let index = 0;
+    switch(selectedColor) {
+      case "#ff0000":
+        index = 0;
+        break;
+      case "#ff9900":
+        index = 1;
+        break;
+      case "#bbbb00":
+        index = 2;
+        break;
+      case "#00ff00":
+        index = 3;
+        break;
+      case "#1155cc":
+        index = 4;
+        break;
+      case "#9900ff":
+        index = 5;
+        break;
+      case "#ff00ff":
+        index = 6;
+        break;
+    }
+    e.methods.renderPolygon(new Transform(0, 0, 0), colorColliders[index], new FillRenderer("black", null, 0.1, 0), null);
+  }
 }
