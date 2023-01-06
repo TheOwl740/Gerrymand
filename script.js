@@ -1,16 +1,25 @@
 //jshint maxerr: 10000
 
+e.data.element.addEventListener("dblclick", () => {
+  if(gameState === "winScreen") {
+    reset();
+    gameState = "playing";
+  }
+});
+
 var selectedColor = null;
 var dragging = false;
 var winPoints = 0;
 var gameState = "playing";
+var gridFilled = false;
 
 const images = {
 	grid: new Image(),
 	logo: new Image(),
 	bottomLine: new Image(),
 	plus: new Image(),
-	owlLogo: new Image()
+	owlLogo: new Image(),
+	winScreen: new Image(),
 };
 images.grid.src = "grid.png";
 images.grid = new ImageRenderer(images.grid, 1, 0, 0, (e.data.h / 10) * 5, (e.data.h / 10) * 7, false, false, true, false);
@@ -22,6 +31,8 @@ images.plus.src = "plus.png";
 images.plus = new ImageRenderer(images.plus, 1, 0, 0, (e.data.h / 12), (e.data.h / 12), false, false, true, false);
 images.owlLogo.src = "owlLogo.png";
 images.owlLogo = new ImageRenderer(images.owlLogo, 1, 0, 0, (e.data.h / 13), (e.data.h / 13), false, false, true, false);
+images.winScreen.src = "winScreen.png";
+images.winScreen = new ImageRenderer(images.winScreen, 1, 0, 0, (e.data.h / 10) * 7, (e.data.h / 10) * 7, false, false, true, false);
 
 const gridMatrix = [
 	[
@@ -44,121 +55,137 @@ const gridMatrix = [
 const colorColliders = [
 ];
 
-for(i = 0; i < 5; i++) {
-	gridMatrix[i].push({
-		seat: null,
-		zone: null,
-		center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (-3 * (e.data.h / 10.1)), 0),
-		collider: null,
-		face: null
-	},
-	{
-		seat: null,
-		zone: null,
-		center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (-2 * (e.data.h / 10.1)), 0),
-		collider: null,
-		face: null
-	},
-	{
-		seat: null,
-		zone: null,
-		center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (-1 * (e.data.h / 10.1)), 0),
-		collider: null,
-		face: null
-	},
-	{
-		seat: null,
-		zone: null,
-		center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (0 * (e.data.h / 10.1)), 0),
-		collider: null,
-		face: null
-	},
-	{
-		seat: null,
-		zone: null,
-		center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (1 * (e.data.h / 10.1)), 0),
-		collider: null,
-		face: null
-	},
-	{
-		seat: null,
-		zone: null,
-		center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (2 * (e.data.h / 10.1)), 0),
-		collider: null,
-		face: null
-	},
-	{
-		seat: null,
-		zone: null,
-		center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (3 * (e.data.h / 10.1)), 0),
-		collider: null,
-		face: null
-	});
+function reset() {
+  for(a = 0; a < 5; a++) {
+    gridMatrix[a] = [
+    ];
+  }
+  resetGrid();
 }
 
-for(i = 0; i < 5; i++) {
-  for(ii = 0; ii < 7; ii++) {
-    let cell = gridMatrix[i][ii];
-    cell.collider = new Polygon([
-      new Tri([
-        new Transform(cell.center.x - (e.data.h / 20), cell.center.y + (e.data.h / 20), 0),
-        new Transform(cell.center.x + (e.data.h / 20), cell.center.y + (e.data.h / 20), 0),
-        new Transform(cell.center.x - (e.data.h / 20), cell.center.y - (e.data.h / 20), 0)
-      ], 3),
-      new Tri([
-        new Transform(cell.center.x + (e.data.h / 20), cell.center.y + (e.data.h / 20), 0),
-        new Transform(cell.center.x + (e.data.h / 20), cell.center.y - (e.data.h / 20), 0),
-        new Transform(cell.center.x - (e.data.h / 20), cell.center.y - (e.data.h / 20), 0)
-      ], 3)
-    ], false);
-		cell.face = new Polygon([
-      new Tri([
-        new Transform(cell.center.x, cell.center.y, 0),
-        new Transform(cell.center.x - (e.data.h / 42), cell.center.y + (e.data.h / 21), 0),
-        new Transform(cell.center.x + (e.data.h / 42), cell.center.y + (e.data.h / 21), 0)
-      ], 3),
-			new Tri([
-        new Transform(cell.center.x, cell.center.y, 0),
-        new Transform(cell.center.x + (e.data.h / 42), cell.center.y + (e.data.h / 21), 0),
-        new Transform(cell.center.x + (e.data.h / 21), cell.center.y + (e.data.h / 42), 0)
-      ], 3),
-			new Tri([
-        new Transform(cell.center.x, cell.center.y, 0),
-        new Transform(cell.center.x + (e.data.h / 21), cell.center.y + (e.data.h / 42), 0),
-        new Transform(cell.center.x + (e.data.h / 21), cell.center.y - (e.data.h / 42), 0)
-      ], 3),
-			new Tri([
-        new Transform(cell.center.x, cell.center.y, 0),
-        new Transform(cell.center.x + (e.data.h / 21), cell.center.y - (e.data.h / 42), 0),
-        new Transform(cell.center.x + (e.data.h / 42), cell.center.y - (e.data.h / 21), 0)
-      ], 3),
-			new Tri([
-        new Transform(cell.center.x, cell.center.y, 0),
-        new Transform(cell.center.x + (e.data.h / 42), cell.center.y - (e.data.h / 21), 0),
-        new Transform(cell.center.x - (e.data.h / 42), cell.center.y - (e.data.h / 21), 0)
-      ], 3),
-			new Tri([
-        new Transform(cell.center.x, cell.center.y, 0),
-        new Transform(cell.center.x - (e.data.h / 42), cell.center.y - (e.data.h / 21), 0),
-        new Transform(cell.center.x - (e.data.h / 21), cell.center.y - (e.data.h / 42), 0)
-      ], 3),
-			new Tri([
-        new Transform(cell.center.x, cell.center.y, 0),
-        new Transform(cell.center.x - (e.data.h / 21), cell.center.y - (e.data.h / 42), 0),
-        new Transform(cell.center.x - (e.data.h / 21), cell.center.y + (e.data.h / 42), 0)
-      ], 3),
-			new Tri([
-        new Transform(cell.center.x, cell.center.y, 0),
-        new Transform(cell.center.x - (e.data.h / 21), cell.center.y + (e.data.h / 42), 0),
-        new Transform(cell.center.x - (e.data.h / 42), cell.center.y + (e.data.h / 21), 0)
-      ], 3),
-    ], false);
-    if(e.methods.randomNum(0, 1) === 0) {
-      cell.seat = false;
-    } else {
-      cell.seat = true;
+function generateBool() {
+  if(e.methods.randomNum(0, 1) === 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function resetGrid() {
+  for(i = 0; i < 5; i++) {
+    gridMatrix[i].push({
+      seat: generateBool(),
+      zone: null,
+      center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (-3 * (e.data.h / 10.1)), 0),
+      collider: null,
+      face: null
+    },
+    {
+      seat: generateBool(),
+      zone: null,
+      center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (-2 * (e.data.h / 10.1)), 0),
+      collider: null,
+      face: null
+    },
+    {
+      seat: generateBool(),
+      zone: null,
+      center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (-1 * (e.data.h / 10.1)), 0),
+      collider: null,
+      face: null
+    },
+    {
+      seat: generateBool(),
+      zone: null,
+      center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (0 * (e.data.h / 10.1)), 0),
+      collider: null,
+      face: null
+    },
+    {
+      seat: generateBool(),
+      zone: null,
+      center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (1 * (e.data.h / 10.1)), 0),
+      collider: null,
+      face: null
+    },
+    {
+      seat: generateBool(),
+      zone: null,
+      center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (2 * (e.data.h / 10.1)), 0),
+      collider: null,
+      face: null
+    },
+    {
+      seat: generateBool(),
+      zone: null,
+      center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (3 * (e.data.h / 10.1)), 0),
+      collider: null,
+      face: null
+  	});
+  	for(ii = 0; ii < 7; ii++) {
+      let cell = gridMatrix[i][ii];
+      cell.collider = new Polygon([
+        new Tri([
+          new Transform(cell.center.x - (e.data.h / 20), cell.center.y + (e.data.h / 20), 0),
+          new Transform(cell.center.x + (e.data.h / 20), cell.center.y + (e.data.h / 20), 0),
+          new Transform(cell.center.x - (e.data.h / 20), cell.center.y - (e.data.h / 20), 0)
+        ], 3),
+        new Tri([
+          new Transform(cell.center.x + (e.data.h / 20), cell.center.y + (e.data.h / 20), 0),
+          new Transform(cell.center.x + (e.data.h / 20), cell.center.y - (e.data.h / 20), 0),
+          new Transform(cell.center.x - (e.data.h / 20), cell.center.y - (e.data.h / 20), 0)
+        ], 3)
+      ], false);
+      cell.face = new Polygon([
+        new Tri([
+          new Transform(cell.center.x, cell.center.y, 0),
+          new Transform(cell.center.x - (e.data.h / 42), cell.center.y + (e.data.h / 21), 0),
+          new Transform(cell.center.x + (e.data.h / 42), cell.center.y + (e.data.h / 21), 0)
+        ], 3),
+        new Tri([
+          new Transform(cell.center.x, cell.center.y, 0),
+          new Transform(cell.center.x + (e.data.h / 42), cell.center.y + (e.data.h / 21), 0),
+          new Transform(cell.center.x + (e.data.h / 21), cell.center.y + (e.data.h / 42), 0)
+        ], 3),
+        new Tri([
+          new Transform(cell.center.x, cell.center.y, 0),
+          new Transform(cell.center.x + (e.data.h / 21), cell.center.y + (e.data.h / 42), 0),
+          new Transform(cell.center.x + (e.data.h / 21), cell.center.y - (e.data.h / 42), 0)
+        ], 3),
+        new Tri([
+          new Transform(cell.center.x, cell.center.y, 0),
+          new Transform(cell.center.x + (e.data.h / 21), cell.center.y - (e.data.h / 42), 0),
+          new Transform(cell.center.x + (e.data.h / 42), cell.center.y - (e.data.h / 21), 0)
+        ], 3),
+        new Tri([
+          new Transform(cell.center.x, cell.center.y, 0),
+          new Transform(cell.center.x + (e.data.h / 42), cell.center.y - (e.data.h / 21), 0),
+          new Transform(cell.center.x - (e.data.h / 42), cell.center.y - (e.data.h / 21), 0)
+        ], 3),
+        new Tri([
+          new Transform(cell.center.x, cell.center.y, 0),
+          new Transform(cell.center.x - (e.data.h / 42), cell.center.y - (e.data.h / 21), 0),
+          new Transform(cell.center.x - (e.data.h / 21), cell.center.y - (e.data.h / 42), 0)
+        ], 3),
+        new Tri([
+          new Transform(cell.center.x, cell.center.y, 0),
+          new Transform(cell.center.x - (e.data.h / 21), cell.center.y - (e.data.h / 42), 0),
+          new Transform(cell.center.x - (e.data.h / 21), cell.center.y + (e.data.h / 42), 0)
+        ], 3),
+        new Tri([
+          new Transform(cell.center.x, cell.center.y, 0),
+          new Transform(cell.center.x - (e.data.h / 21), cell.center.y + (e.data.h / 42), 0),
+          new Transform(cell.center.x - (e.data.h / 42), cell.center.y + (e.data.h / 21), 0)
+        ], 3),
+      ], false);
     }
   }
+}
+
+resetGrid();
+
+for(i = 0; i < 5; i++) {
+  
 }
 
 for(i = 0; i < 7; i++) {
@@ -202,112 +229,114 @@ function update() {
       }
     }
   }
-  if(selectedColor !== null) {
-    let index = 0;
-    switch(selectedColor) {
-      case "#ff0000":
-        index = 0;
-        break;
-      case "#ff9900":
-        index = 1;
-        break;
-      case "#ffff00":
-        index = 2;
-        break;
-      case "#00ff00":
-        index = 3;
-        break;
-      case "#1155cc":
-        index = 4;
-        break;
-      case "#9900ff":
-        index = 5;
-        break;
-      case "#ff00ff":
-        index = 6;
-        break;
-    }
-    e.methods.renderPolygon(new Transform(0, 0, 0), colorColliders[index], new FillRenderer("black", null, 0.1, 0), null);
-  }
   for(i = 0; i < winPoints; i++) {
-    e.methods.renderImage(new Transform(((e.data.w / 2) - (e.data.h / 10)) + (i * (e.data.h / 10)), ((e.data.h / 15) - e.data.h), 0), images.plus);
+    if(i < 4) {
+      e.methods.renderImage(new Transform(((e.data.w / 2) - (e.data.h / 10)) + (i * (e.data.h / 10)), ((e.data.h / 15) - e.data.h), 0), images.plus);
+    }
   }
 	if(gameState === "playing") {
+	  if(selectedColor !== null) {
+      let index = 0;
+      switch(selectedColor) {
+        case "#ff0000":
+          index = 0;
+          break;
+        case "#ff9900":
+          index = 1;
+          break;
+        case "#ffff00":
+          index = 2;
+          break;
+        case "#00ff00":
+          index = 3;
+          break;
+        case "#1155cc":
+          index = 4;
+          break;
+        case "#9900ff":
+          index = 5;
+          break;
+        case "#ff00ff":
+          index = 6;
+          break;
+      }
+      e.methods.renderPolygon(new Transform(0, 0, 0), colorColliders[index], new FillRenderer("black", null, 0.1, 0), null);
+    }
   	if(e.data.mouse.clicking) {
-  		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[0])) {
-  			selectedColor = "#ff0000";
-  			for(i = 0; i < 5; i++) {
+      if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[0])) {
+        selectedColor = "#ff0000";
+        for(i = 0; i < 5; i++) {
           for(ii = 0; ii < 7; ii++) {
             if(gridMatrix[i][ii].zone === "#ff0000") {
               gridMatrix[i][ii].zone = null;
             }
           }
-  			}
-  		}
-  		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[1])) {
-  			selectedColor = "#ff9900";
-  			for(i = 0; i < 5; i++) {
+        }
+      }
+      if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[1])) {
+        selectedColor = "#ff9900";
+        for(i = 0; i < 5; i++) {
           for(ii = 0; ii < 7; ii++) {
             if(gridMatrix[i][ii].zone === "#ff9900") {
               gridMatrix[i][ii].zone = null;
             }
           }
-  			}
-  		}
-  		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[2])) {
-  			selectedColor = "#ffff00";
-  			for(i = 0; i < 5; i++) {
+        }
+      }
+      if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[2])) {
+        selectedColor = "#ffff00";
+        for(i = 0; i < 5; i++) {
           for(ii = 0; ii < 7; ii++) {
             if(gridMatrix[i][ii].zone === "#ffff00") {
               gridMatrix[i][ii].zone = null;
             }
           }
-  			}
-  		}
-  		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[3])) {
-  			selectedColor = "#00ff00";
-  			for(i = 0; i < 5; i++) {
+        }
+      }
+      if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[3])) {
+        selectedColor = "#00ff00";
+        for(i = 0; i < 5; i++) {
           for(ii = 0; ii < 7; ii++) {
             if(gridMatrix[i][ii].zone === "#00ff00") {
               gridMatrix[i][ii].zone = null;
             }
           }
-  			}
-  		}
-  		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[4])) {
-  			selectedColor = "#1155cc";
-  			for(i = 0; i < 5; i++) {
+        }
+      }
+      if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[4])) {
+        selectedColor = "#1155cc";
+        for(i = 0; i < 5; i++) {
           for(ii = 0; ii < 7; ii++) {
             if(gridMatrix[i][ii].zone === "#1155cc") {
               gridMatrix[i][ii].zone = null;
             }
           }
-  			}
-  		}
-  		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[5])) {
-  			selectedColor = "#9900ff";
-  			for(i = 0; i < 5; i++) {
+        }
+      }
+      if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[5])) {
+        selectedColor = "#9900ff";
+        for(i = 0; i < 5; i++) {
           for(ii = 0; ii < 7; ii++) {
             if(gridMatrix[i][ii].zone === "#9900ff") {
               gridMatrix[i][ii].zone = null;
             }
           }
-  			}
-  		}
-  		if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[6])) {
-  			selectedColor = "#ff00ff";
-  			for(i = 0; i < 5; i++) {
+        }
+      }
+      if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[6])) {
+        selectedColor = "#ff00ff";
+        for(i = 0; i < 5; i++) {
           for(ii = 0; ii < 7; ii++) {
             if(gridMatrix[i][ii].zone === "#ff00ff") {
               gridMatrix[i][ii].zone = null;
             }
           }
-  			}
-  		}
-  		for(i = 0; i < 5; i++) {
-  			for(ii = 0; ii < 7; ii++) {
-  				let cell = gridMatrix[i][ii];
-  				if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), cell.collider) && selectedColor !== null) {
+        }
+      }
+      for(i = 0; i < 5; i++) {
+        for(ii = 0; ii < 7; ii++) {
+          let cell = gridMatrix[i][ii];
+          if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), cell.collider) && selectedColor !== null) {
             dragging = true;
             if(cell.zone !== null && cell.zone !== selectedColor) {
               for(a = 0; a < 5; a++) {
@@ -318,10 +347,10 @@ function update() {
                 }
               }
             }
-  					cell.zone = selectedColor;
-  				}
-  			}
-  		}
+            cell.zone = selectedColor;
+        	}
+        }
+      }
   	} else {
       if(dragging) {
         dragging = false;
@@ -383,10 +412,18 @@ function update() {
         winPoints++;
       }
     }
-    if(winPoints > 3) {
+    gridFilled = true;
+    for(i = 0; i < 5; i++) {
+      for(ii = 0; ii < 7; ii++) {
+        if(gridMatrix[i][ii].zone === null) {
+          gridFilled = false;
+        }
+      }
+    }
+    if(winPoints > 3 && gridFilled) {
       gameState = "winScreen";
     }
 	} else if(gameState === "winScreen") {
-	  
+	  e.methods.renderImage(new Transform(e.data.w / 2, e.data.h / -2, 0), images.winScreen);
 	}
 }
