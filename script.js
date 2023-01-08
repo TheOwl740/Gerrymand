@@ -371,7 +371,9 @@ function update() {
             }
           }
         }
-        selectedColor = null;
+				if(total === 5) {
+        	selectedColor = null;
+				}
       }
   	}
     winPoints = 0;
