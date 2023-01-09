@@ -20,6 +20,8 @@ const images = {
 	plus: new Image(),
 	owlLogo: new Image(),
 	winScreen: new Image(),
+	refresh: new Image(),
+	help: new Image()
 };
 images.grid.src = "grid.png";
 images.grid = new ImageRenderer(images.grid, 1, 0, 0, (e.data.h / 10) * 5, (e.data.h / 10) * 7, false, false, true, false);
@@ -33,6 +35,10 @@ images.owlLogo.src = "owlLogo.png";
 images.owlLogo = new ImageRenderer(images.owlLogo, 1, 0, 0, (e.data.h / 13), (e.data.h / 13), false, false, true, false);
 images.winScreen.src = "winScreen.png";
 images.winScreen = new ImageRenderer(images.winScreen, 1, 0, 0, (e.data.h / 10) * 7, (e.data.h / 10) * 7, false, false, true, false);
+images.refresh.src = "refresh.png";
+images.refresh = new ImageRenderer(images.refresh, 1, 0, 0, (e.data.h / 10), (e.data.h / 15), false, false, true, false);
+images.help.src = "help.png";
+images.help = new ImageRenderer(images.help, 1, 0, 0, (e.data.h / 10), (e.data.h / 15), false, false, true, false);
 
 const gridMatrix = [
 	[
@@ -208,6 +214,8 @@ const timer = setInterval(update, 10);
 function update() {
 	e.methods.clearCanvas(new FillRenderer("#FFFFFF", null, 1, 0));
 	e.methods.renderImage(new Transform(e.data.w / 2, (e.data.h / -20), 0), images.logo);
+	e.methods.renderImage(new Transform((e.data.w / 2) - (e.data.h / 15), (e.data.h / -8.2), 0), images.refresh);
+	e.methods.renderImage(new Transform((e.data.w / 2) + (e.data.h / 15), (e.data.h / -8.2), 0), images.help);
 	e.methods.renderImage(new Transform(e.data.w / 2, (e.data.h / -2), 0), images.grid);
 	e.methods.renderImage(new Transform(e.data.w / 2, (e.data.h / 15) - e.data.h, 0), images.bottomLine);
 	e.methods.renderImage(new Transform((e.data.w / 2) - (e.data.h / 5), (e.data.h / 15) - e.data.h, 0), images.owlLogo);
