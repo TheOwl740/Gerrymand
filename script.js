@@ -25,7 +25,9 @@ const images = {
 	owlLogo: new Image(),
 	winScreen: new Image(),
 	refresh: new Image(),
-	help: new Image()
+	help: new Image(),
+	helpPage: new Image(),
+	close: new Image()
 };
 images.grid.src = "grid.png";
 images.grid = new ImageRenderer(images.grid, 1, 0, 0, (e.data.h / 10) * 5, (e.data.h / 10) * 7, false, false, true, false);
@@ -43,6 +45,10 @@ images.refresh.src = "refresh.png";
 images.refresh = new ImageRenderer(images.refresh, 1, 0, 0, (e.data.h / 10), (e.data.h / 15), false, false, true, false);
 images.help.src = "help.png";
 images.help = new ImageRenderer(images.help, 1, 0, 0, (e.data.h / 10), (e.data.h / 15), false, false, true, false);
+images.helpPage.src = "helpPage.png";
+images.helpPage = new ImageRenderer(images.helpPage, 1, 0, 0, (e.data.h / 10) * 7, (e.data.h / 10) * 7, false, false, true, false);
+images.close.src = "close.png";
+images.close = new ImageRenderer(images.close, 1, 0, 0, (e.data.h / 10), (e.data.h / 15), false, false, true, false);
 
 const gridMatrix = [
 	[
@@ -213,7 +219,11 @@ function fullClick() {
     reset();
   }
   if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform((e.data.w / 2) + (e.data.h / 15), (e.data.h / -8.2), 0), buttonCollider)) {
-    gameState = "helpScreen";
+    if(gameState === "helpScreen") {
+      gameState = "playing";
+    } else {
+      gameState = "helpScreen";
+    }
   }
   if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), colorColliders[0])) {
     selectedColor = "#ff0000";
@@ -308,7 +318,6 @@ function update() {
 	e.methods.clearCanvas(new FillRenderer("#FFFFFF", null, 1, 0));
 	e.methods.renderImage(new Transform(e.data.w / 2, (e.data.h / -20), 0), images.logo);
 	e.methods.renderImage(new Transform((e.data.w / 2) - (e.data.h / 15), (e.data.h / -8.2), 0), images.refresh);
-	e.methods.renderImage(new Transform((e.data.w / 2) + (e.data.h / 15), (e.data.h / -8.2), 0), images.help);
 	e.methods.renderImage(new Transform(e.data.w / 2, (e.data.h / -2), 0), images.grid);
 	e.methods.renderImage(new Transform(e.data.w / 2, (e.data.h / 15) - e.data.h, 0), images.bottomLine);
 	e.methods.renderImage(new Transform((e.data.w / 2) - (e.data.h / 5), (e.data.h / 15) - e.data.h, 0), images.owlLogo);
@@ -336,6 +345,7 @@ function update() {
     }
   }
 	if(gameState === "playing") {
+	  e.methods.renderImage(new Transform((e.data.w / 2) + (e.data.h / 15), (e.data.h / -8.2), 0), images.help);
 	  if(selectedColor !== null) {
       let index = 0;
       switch(selectedColor) {
@@ -459,6 +469,7 @@ function update() {
 	} else if(gameState === "winScreen") {
 	  e.methods.renderImage(new Transform(e.data.w / 2, e.data.h / -2, 0), images.winScreen);
 	} else if(gameState === "helpScreen") {
-	  
+	  e.methods.renderImage(new Transform((e.data.w / 2) + (e.data.h / 15), (e.data.h / -8.2), 0), images.close);
+	  e.methods.renderImage(new Transform(e.data.w / 2, e.data.h / -2, 0), images.helpPage);
 	}
 }
