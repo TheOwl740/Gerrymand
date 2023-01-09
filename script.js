@@ -92,6 +92,19 @@ const buttonCollider = new Polygon([
   ], 3)
 ], true);
 
+const gridBoxCollider = new Polygon([
+  new Tri([
+    new Transform(e.data.h / -20, e.data.h / 20, 0),
+    new Transform(e.data.h / 20, e.data.h / 20, 0),
+    new Transform(e.data.h / -20, e.data.h / -20, 0)
+  ], 3),
+  new Tri([
+    new Transform(e.data.h / 20, e.data.h / 20, 0),
+    new Transform(e.data.h / 20, e.data.h / -20, 0),
+    new Transform(e.data.h / -20, e.data.h / -20, 0)
+  ], 3)
+], false);
+
 function reset() {
   for(a = 0; a < 5; a++) {
     gridMatrix[a] = [
@@ -115,65 +128,53 @@ function resetGrid() {
       seat: generateBool(),
       zone: null,
       center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (-3 * (e.data.h / 10.1)), 0),
-      collider: null,
+      collider: gridBoxCollider,
       face: null
     },
     {
       seat: generateBool(),
       zone: null,
       center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (-2 * (e.data.h / 10.1)), 0),
-      collider: null,
+      collider: gridBoxCollider,
       face: null
     },
     {
       seat: generateBool(),
       zone: null,
       center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (-1 * (e.data.h / 10.1)), 0),
-      collider: null,
+      collider: gridBoxCollider,
       face: null
     },
     {
       seat: generateBool(),
       zone: null,
       center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (0 * (e.data.h / 10.1)), 0),
-      collider: null,
+      collider: gridBoxCollider,
       face: null
     },
     {
       seat: generateBool(),
       zone: null,
       center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (1 * (e.data.h / 10.1)), 0),
-      collider: null,
+      collider: gridBoxCollider,
       face: null
     },
     {
       seat: generateBool(),
       zone: null,
       center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (2 * (e.data.h / 10.1)), 0),
-      collider: null,
+      collider: gridBoxCollider,
       face: null
     },
     {
       seat: generateBool(),
       zone: null,
       center: new Transform((e.data.w / 2) + ((i - 2) * (e.data.h / 10.2)), (e.data.h / -2) + (3 * (e.data.h / 10.1)), 0),
-      collider: null,
+      collider: gridBoxCollider,
       face: null
   	});
   	for(ii = 0; ii < 7; ii++) {
       let cell = gridMatrix[i][ii];
-      cell.collider = new Polygon([
-        new Tri([
-          new Transform(cell.center.x - (e.data.h / 20), cell.center.y + (e.data.h / 20), 0),
-          new Transform(cell.center.x + (e.data.h / 20), cell.center.y + (e.data.h / 20), 0),
-          new Transform(cell.center.x - (e.data.h / 20), cell.center.y - (e.data.h / 20), 0)
-        ], 3),
-        new Tri([
-          new Transform(cell.center.x + (e.data.h / 20), cell.center.y + (e.data.h / 20), 0),
-          new Transform(cell.center.x + (e.data.h / 20), cell.center.y - (e.data.h / 20), 0),
-          new Transform(cell.center.x - (e.data.h / 20), cell.center.y - (e.data.h / 20), 0)
-        ], 3)
-      ], false);
       cell.face = new Polygon([
         new Tri([
           new Transform(cell.center.x, cell.center.y, 0),
@@ -223,6 +224,9 @@ function resetGrid() {
 resetGrid();
 
 function fullClick() {
+  if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform((e.data.w / 2) - (e.data.h / 5), (e.data.h / 15) - e.data.h, 0), gridBoxCollider)) {
+    window.open("https://replit.com/@Owl_coder");
+  }
   if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform((e.data.w / 2) - (e.data.h / 7), (e.data.h / -8.2), 0), buttonCollider) && gameState === "playing") {
     reset();
   }
@@ -393,7 +397,7 @@ function update() {
       for(i = 0; i < 5; i++) {
         for(ii = 0; ii < 7; ii++) {
           let cell = gridMatrix[i][ii];
-          if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(0, 0, 0), cell.collider) && selectedColor !== null) {
+          if(e.methods.detectCollision(e.data.mouse.absolute, null, new Transform(cell.center.x, cell.center.y, 0), cell.collider) && selectedColor !== null) {
             dragging = true;
             if(cell.zone !== null && cell.zone !== selectedColor) {
               for(a = 0; a < 5; a++) {
